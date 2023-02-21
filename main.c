@@ -68,8 +68,8 @@ int main(int argc, char *argv[]) {
         {"alphabet", required_argument, 0, 'a'},
         {"min-size", required_argument, 0, 'b'},
         {"max-size", required_argument, 0, 'h'},
-        {"md5", no_argument, 0, 'm'},
-        {"sha1", no_argument, 0, 's'},
+        {"md5", required_argument, 0, 'm'},
+        {"sha1", required_argument, 0, 's'},
         {0, 0, 0, 0}
     };
 
@@ -88,12 +88,12 @@ int main(int argc, char *argv[]) {
                 alphabet_set = 1;
                 break;
             case 'm' :
-                printf("test MD5 : Salut\n");
-                test_md5("Salut");
+                printf("test MD5 : %s\n", optarg);
+                test_md5(optarg);
                 break;
             case 's' :
-                printf("test SHA1 : Bob\n");
-                test_sha1("Bob");
+                printf("test SHA1 : %s\n", optarg);
+                test_sha1(optarg);
                 break;
         } 
     }

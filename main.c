@@ -4,21 +4,22 @@
 #include <openssl/sha.h>
 #include <string.h>
 #include <math.h>
+#include <unistd.h>
+#include <getopt.h>
 
 char* alphabet;
-int min_size;
-int max_size;
-int N;
+int min_size = -1;
+int max_size = -1;
+int64_t N;
 
-void init(char *argv[]){
-    alphabet = argv[1];
-    min_size = atoi(argv[2]);
-    max_size = atoi(argv[3]);
+void init(){
     N = 0;
     int size_alph = strlen(alphabet);
     for(int i = min_size; i <= max_size; i++){
         N = N + pow(size_alph, i);
     }
+    printf("%ld", N);
+    // printf("\n");
 }
 
 typedef unsigned char byte;
@@ -58,10 +59,41 @@ void test_sha1(char* testString){
 
 //function main to create MD5 hash
 int main(int argc, char *argv[]) {
-    init(argv);
-    printf("test MD5 : Salut\n");
-    test_md5("Salut");
-    
-    printf("test SHA1 : Bob\n");
-    test_sha1("Bob");
+    int opt;
+    int long_index = 0;
+
+    //Specifying the expected options
+    static struct option long_options[] = {
+        {"alphabet", required_argument, 0, 'a'},
+        {"min_size", required_argument, 0, 'b'},
+        {"max_size", required_argument, 0, 'h'},
+        {"md5", no_argument, 0, 'm'},
+        {"sha1", no_argument, 0, 's'},
+        {0, 0, 0, 0}
+    };
+
+while ((opt = getopt_long(argc, argv,"apl:b:", long_options, &long_index )) != -1)    { 
+        switch(opt) 
+        { 
+            case 'a':
+                alphabet = malloc(sizeof(char) * strlen(optarg));
+                alphabet = optarg;
+            case 'b':
+                min_size = atoi(optarg);
+                printf("%d\n", min_size);
+            case 'h':
+                max_size = atoi(optarg);
+                init();
+                //printf("\n");
+                break;
+            case 'm' :
+                printf("test MD5 : Salut\n");
+                test_md5("Salut");
+                break;
+            case 's' :
+                printf("test SHA1 : Bob\n");
+                test_sha1("Bob");
+                break;
+        } 
+    } 
 }

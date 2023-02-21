@@ -9,9 +9,34 @@
 
 char* alphabet = "";
 int alphabet_set = 0;
+int alphabet_size;
 int min_size = -1;
 int max_size = -1;
 int64_t N;
+int i2c_called = 0;
+
+char* i2c_naif(int64_t i) {
+    char* result = (char*)malloc(sizeof(char) * 1000);
+    int idx;
+    int pos = 0;
+    if (i == 0) {
+        result[pos] = alphabet[0];
+    }
+    while (i > 0) {
+        idx = i % alphabet_size;
+        result[pos++] = alphabet[idx];
+        i = (i - 1) / alphabet_size;
+    }
+    result[pos] = '\0';
+    int len = strlen(result);
+    // Inverse la chaîne de caractères
+    for (int j = 0; j < len / 2; j++) {
+        char temp = result[j];
+        result[j] = result[len - j - 1];
+        result[len - j - 1] = temp;
+    }
+    return result;
+}
 
 void init(){
     N = 0;
@@ -70,6 +95,7 @@ int main(int argc, char *argv[]) {
         {"max-size", required_argument, 0, 'h'},
         {"md5", required_argument, 0, 'm'},
         {"sha1", required_argument, 0, 's'},
+        {"i2c", no_argument, 0, 'x'},
         {0, 0, 0, 0}
     };
 
@@ -85,7 +111,7 @@ int main(int argc, char *argv[]) {
             case 'a':
                 alphabet = malloc(sizeof(char) * strlen(optarg));
                 alphabet = optarg;
-                alphabet_set = 1;
+                alphabet_size = strlen(alphabet);
                 break;
             case 'm' :
                 printf("test MD5 : %s\n", optarg);
@@ -95,11 +121,17 @@ int main(int argc, char *argv[]) {
                 printf("test SHA1 : %s\n", optarg);
                 test_sha1(optarg);
                 break;
+            case 'x' :
+                i2c_called = 1;
+                break;
         } 
     }
 
-    if(min_size != -1 && max_size != -1 && alphabet_set){
+    if(min_size != -1 && max_size != -1 && alphabet_size){
         init();
-        printf("%ld\n", N);
+        printf("N --> %ld\n", N);
+        if(i2c_called){
+            printf("\nI2C --> %s\n", i2c_naif(456974));
+        }
     }
 }

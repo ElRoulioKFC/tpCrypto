@@ -7,7 +7,8 @@
 #include <unistd.h>
 #include <getopt.h>
 
-char* alphabet;
+char* alphabet = "";
+int alphabet_set = 0;
 int min_size = -1;
 int max_size = -1;
 int64_t N;
@@ -16,9 +17,9 @@ void init(){
     N = 0;
     int size_alph = strlen(alphabet);
     for(int i = min_size; i <= max_size; i++){
-        N = N + pow(size_alph, i);
+        N += pow(size_alph, i);
     }
-    printf("%ld", N);
+    // printf("%ld", N);
     // printf("\n");
 }
 
@@ -65,26 +66,26 @@ int main(int argc, char *argv[]) {
     //Specifying the expected options
     static struct option long_options[] = {
         {"alphabet", required_argument, 0, 'a'},
-        {"min_size", required_argument, 0, 'b'},
-        {"max_size", required_argument, 0, 'h'},
+        {"min-size", required_argument, 0, 'b'},
+        {"max-size", required_argument, 0, 'h'},
         {"md5", no_argument, 0, 'm'},
         {"sha1", no_argument, 0, 's'},
         {0, 0, 0, 0}
     };
 
-while ((opt = getopt_long(argc, argv,"apl:b:", long_options, &long_index )) != -1)    { 
+    while ((opt = getopt_long(argc, argv,"bhams", long_options, &long_index )) != -1)    { 
         switch(opt) 
         { 
+            case 'b':
+                min_size = atoi(optarg);
+                break;
+            case 'h':
+                max_size = atoi(optarg);
+                break;
             case 'a':
                 alphabet = malloc(sizeof(char) * strlen(optarg));
                 alphabet = optarg;
-            case 'b':
-                min_size = atoi(optarg);
-                printf("%d\n", min_size);
-            case 'h':
-                max_size = atoi(optarg);
-                init();
-                //printf("\n");
+                alphabet_set = 1;
                 break;
             case 'm' :
                 printf("test MD5 : Salut\n");
@@ -95,5 +96,10 @@ while ((opt = getopt_long(argc, argv,"apl:b:", long_options, &long_index )) != -
                 test_sha1("Bob");
                 break;
         } 
-    } 
+    }
+
+    if(min_size != -1 && max_size != -1 && alphabet_set){
+        init();
+        printf("%ld\n", N);
+    }
 }

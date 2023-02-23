@@ -7,8 +7,6 @@
 #include <unistd.h>
 #include <getopt.h>
 
-typedef unsigned char byte;
-
 char* alphabet = "";
 int alphabet_set = 0;
 int alphabet_size;
@@ -16,8 +14,14 @@ int min_size = -1;
 int max_size = -1;
 int64_t N;
 int i2c_called = 0;
-char* texte_clair_i2i = "";
-int largeurChaine;
+char* empreinte = "";
+char* texte = "";
+
+void  append(char*s, char c) {
+     int len = strlen(s);
+     s[len] = c;
+     s[len+1] = '\0';
+}
 
 char* i2c_naif(int64_t i, int size) {
     // init
@@ -54,41 +58,37 @@ char* i2c(int64_t value){
 }
 
 /*
-uint64_t randomIndice(){
-    unsigned long n1 = rand();
-    unsigned long n2 = rand();
-    return ( (uint64) n2 )+ ( ( (uint64) n1 ) << 32 );
+uint64_t h2i(unsigned char *hash) {
+    uint64_t num = 0;
+    memcpy(&num, hash, 8);
+    return num % N;
 }*/
 
-uint64_t h2i(byte empreinte, int t) {
-    uint64_t* empreinteInt = (uint64_t*) empreinte;
-    uint64_t i = (empreinteInt[0] + t) % largeurChaine;
+uint64_t h2i(unsigned char* hash, int column) {
+    printf("HASHHHHHH --> %s\n", hash);
+    uint64_t* val = (uint64_t*) hash;
+    return *val;
 }
 
-uint64_t i2i(uint64_t idx, int t){
-    // calcul message clair : indice -> clair (i2c)
-    texte_clair_i2i = i2c(idx);
-    
-    // calcul empreinte : clair -> empreinte (hash)
-    byte empreinte[MD5_DIGEST_LENGTH];
-    hash_MD5(texte_clair_i2i, empreinte);
+// uint64_t h2i(char* t, int column) {
+//     uint64_t i = *((uint64_t*) t);
+//     printf("n = %d", N);
+//     return (i + column) % N;
+// }
 
-    // calcul indice : empreinte -> indice (h2i)
-    uint64_t indice = h2i(empreinte, t);
+/*
+char* i2i(uint64_t idx, int t){
+    char* clair = i2c(idx);
+    hash_MD5(clair, idx);
+    uint64_t indice = h2i(empreinte, t)
     
     return indice;
-}
+}*/
 
-uint64_t nouvelle_chaine(uint64_t idx1, int largeur){
-    /*Calcul une chaîne de h et d'indices de longeure largeur, ne renvoie que le dernier indice*/
-    uint64_t res;
-    largeurChaine = largeur;
-    for (int i = 1; i < largeur; i++)
-    {
-        res = i2i(idx1, i);
-    }
-    return res;
-}
+/*
+char* nouvelle_chaine(uint64_t idx1, uint64_t largeur){
+    return "test";
+}*/
 
 void init(){
     N = 0;
@@ -100,7 +100,7 @@ void init(){
     // printf("\n");
 }
 
-
+typedef unsigned char byte;
 unsigned char *MD5(const unsigned char *d, 
                    unsigned long n,
                    unsigned char *md);
@@ -115,22 +115,26 @@ void hash_SHA1(const char* s, byte* empreinte)
     SHA1((unsigned char*)s, strlen(s), empreinte);
 }
 
-void test_md5(char* testString){
+char* test_md5(char* testString){
     byte empreinte[MD5_DIGEST_LENGTH];
     hash_MD5(testString, empreinte);
+    char* res = malloc(sizeof(char) * 10000);
     for(int i = 0; i < MD5_DIGEST_LENGTH; i++ ){
-        printf("%0x", empreinte[i]);
+        sprintf("%0x", empreinte[i]);
+        res[i] = empreinte[i];
     }
     printf("\n");
+    return res;
 }
 
 
-void test_sha1(char* testString){
+char* test_sha1(char* testString){
     byte empreinte[SHA_DIGEST_LENGTH];
     hash_SHA1(testString, empreinte);
+    char* res = "";
     for(int i = 0; i < SHA_DIGEST_LENGTH ; i++ ){
         printf("%0x", empreinte[i]);
-        res += empreinte[i];
+        res += sprintf("%0x", empreinte[i]);
     }
     printf("\n");
     return res;
@@ -141,6 +145,7 @@ void test_sha1(char* testString){
 int main(int argc, char *argv[]) {
     int opt;
     int long_index = 0;
+    int i2c_num = 0;
 
     //Specifying the expected options
     static struct option long_options[] = {
@@ -190,4 +195,8 @@ int main(int argc, char *argv[]) {
             printf("\nI2C --> %s\n", i2cResult);
         }
     }
+    N = 12338352;
+    printf("=== %s ===\n", test_md5("oups"));
+    uint64_t h = h2i(test_md5("oups"), 1);
+    printf("val --> %ld\n", h);
 }

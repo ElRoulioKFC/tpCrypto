@@ -15,14 +15,17 @@ int max_size = -1;
 int64_t N;
 int i2c_called = 0;
 
-char* i2c_naif(int64_t i) {
+char* i2c_naif(int64_t i, int size) {
     char* result = (char*)malloc(sizeof(char) * 1000);
     int idx;
     int pos = 0;
     if (i == 0) {
         result[pos] = alphabet[0];
     }
-    while (i > 0) {
+    while (i > 0 || pos < size) {
+        if(i < 0){
+            result[pos++] = alphabet[0];
+        }
         idx = i % alphabet_size;
         result[pos++] = alphabet[idx];
         i = (i - 1) / alphabet_size;
@@ -35,6 +38,19 @@ char* i2c_naif(int64_t i) {
         result[j] = result[len - j - 1];
         result[len - j - 1] = temp;
     }
+    return result;
+}
+
+//integer to string from alphabet
+char* i2c(int64_t value){
+    char* result;
+    int size;
+
+    while ((value % pow(alphabet_size, i)))
+    {
+        /* code */
+    }
+
     return result;
 }
 
@@ -95,7 +111,7 @@ int main(int argc, char *argv[]) {
         {"max-size", required_argument, 0, 'h'},
         {"md5", required_argument, 0, 'm'},
         {"sha1", required_argument, 0, 's'},
-        {"i2c", no_argument, 0, 'x'},
+        {"i2c", required_argument, 0, 'x'},
         {0, 0, 0, 0}
     };
 
@@ -123,6 +139,7 @@ int main(int argc, char *argv[]) {
                 break;
             case 'x' :
                 i2c_called = 1;
+                i2c_num = atoi(optarg);
                 break;
         } 
     }
@@ -131,7 +148,7 @@ int main(int argc, char *argv[]) {
         init();
         printf("N --> %ld\n", N);
         if(i2c_called){
-            printf("\nI2C --> %s\n", i2c_naif(456974));
+            printf("\nI2C --> %s\n", i2c_naif(i2c_num, max_size));
         }
     }
 }

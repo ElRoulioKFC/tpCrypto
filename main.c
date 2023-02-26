@@ -24,6 +24,7 @@ unsigned char* sha1_res = "";
 byte sha1_em[SHA_DIGEST_LENGTH];
 int h2i_called = 0;
 int i2i_called = 0;
+int new_chain_length = 0;
 
 void hash_MD5(char* s, byte* empreinte)
 {
@@ -96,37 +97,37 @@ uint64_t h2i(unsigned char* y, int t) {
     return (y_64 + t) % N;
 }
 
-
-// uint64_t randomIndice(){
-//     unsigned long n1 = rand();
-//     unsigned long n2 = rand();
-//     return ( (uint64) n2 )+ ( ( (uint64) n1 ) << 32 );
-// }
-
 uint64_t i2i(uint64_t idx, int t){
     // calcul message clair : indice -> clair (i2c)
     texte_clair_i2i = i2c(idx);
+    printf("--i2c--> %s \n", texte_clair_i2i);
     
     // calcul empreinte : clair -> empreinte (hash)
     byte empreinte[MD5_DIGEST_LENGTH];
     hash_MD5(texte_clair_i2i, empreinte);
+    printf("--h--> ");
+    for(int i = 0; i < MD5_DIGEST_LENGTH; i++ ){
+        printf("%0x ", empreinte[i]);
+    }
+    printf("\n");
     bin_to_char(texte_clair_i2i, empreinte, MD5_DIGEST_LENGTH);
+    free(texte_clair_i2i);
 
     // calcul indice : empreinte -> indice (h2i)
+    printf("t -> %ld\n", t);
     uint64_t indice = h2i(empreinte, t);
+    printf("--h2i-->%ld\n", indice);
     
     return indice;
 }
 
-uint64_t* nouvelle_chaine(uint64_t idx1, int largeur){
+uint64_t nouvelle_chaine(uint64_t idx1, int largeur){
     /*Calcul une chaîne de h et d'indices de longueur largeur, renvoie un tableau contenant tous les indices*/
-    uint64_t* res = malloc(largeur * sizeof(uint64_t));
-    //largeurChaine = largeur;
-    res[0] = idx1; // le premier indice est l'indice de départ
+    uint64_t res = idx1;
 
     for (int i = 1; i < largeur; i++)
     {
-        res[i] = i2i(res[i-1], i);
+        res = i2i(res, i);
     }
 
     return res;
@@ -139,8 +140,6 @@ void init(){
     for(int i = min_size; i <= max_size; i++){
         N += pow(size_alph, i);
     }
-    // printf("%ld", N);
-    // printf("\n");
 }
 
 void test_md5(char* testString){
@@ -176,7 +175,7 @@ int main(int argc, char *argv[]) {
         {"sha1", required_argument, 0, 's'},
         {"i2c", required_argument, 0, 'x'},
         {"h2i", no_argument, 0, 'y'},
-        {"i2i", no_argument, 0, 'z'},
+        {"nouv-chaine", required_argument, 0, 'z'},
         {0, 0, 0, 0}
     };
 
@@ -212,6 +211,7 @@ int main(int argc, char *argv[]) {
                 h2i_called = 1;
                 break;
             case 'z' :
+                new_chain_length = atoi(optarg);
                 i2i_called = 1;
                 break;
 
@@ -240,7 +240,7 @@ int main(int argc, char *argv[]) {
         printf("H2I '%s' --> %ld\n", tmp, h2i(tmp, 1));
     }
 
-    if(i2i_called && strlen(md5_res) != 0){
-        printf("I2I --> %ld", i2i(i2c_num, 1));
+    if(i2i_called){
+        printf("Chaine de taille %ld --> %ld\n", new_chain_length, nouvelle_chaine(1, new_chain_length));
     }
 }

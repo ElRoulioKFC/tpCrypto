@@ -63,7 +63,8 @@ Résultat : N --> 12338352
            H2I de 72eb471fb3bd65c03d29f2fcbb9984d6 avec un t = 1 --> 10419507
 
 ## Question 6
+Question abordé mais ne fonctionne pas.
+./exec --alphabet=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz --min-size=4 --max-size=5 --nouv-chaine=10
 
 ## Question 7
-
-La variable t permet d'augmenter la couverture de la table en utilisant des indices aléatoires.
+La variable t permet d'augmenter la couverture de la table en utilisant des indices plus divergents.

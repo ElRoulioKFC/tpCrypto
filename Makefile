@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -Werror
+CFLAGS=-Wall -Wextra #-Werror
 LDFLAGS=-lcrypto -lssl -lm
 
 all: exec

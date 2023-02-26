@@ -96,19 +96,6 @@ uint64_t h2i(unsigned char* y, int t) {
     return (y_64 + t) % N;
 }
 
-uint64_t* nouvelle_chaine(uint64_t idx1, int largeur){
-    /*Calcul une chaîne de h et d'indices de longueur largeur, renvoie un tableau contenant tous les indices*/
-    uint64_t* res = malloc(largeur * sizeof(uint64_t));
-    largeurChaine = largeur;
-    res[0] = idx1; // le premier indice est l'indice de départ
-
-    for (int i = 1; i < largeur; i++)
-    {
-        res[i] = i2i(res[i-1], i);
-    }
-
-    return res;
-}
 
 // uint64_t randomIndice(){
 //     unsigned long n1 = rand();
@@ -130,6 +117,21 @@ uint64_t i2i(uint64_t idx, int t){
     
     return indice;
 }
+
+uint64_t* nouvelle_chaine(uint64_t idx1, int largeur){
+    /*Calcul une chaîne de h et d'indices de longueur largeur, renvoie un tableau contenant tous les indices*/
+    uint64_t* res = malloc(largeur * sizeof(uint64_t));
+    //largeurChaine = largeur;
+    res[0] = idx1; // le premier indice est l'indice de départ
+
+    for (int i = 1; i < largeur; i++)
+    {
+        res[i] = i2i(res[i-1], i);
+    }
+
+    return res;
+}
+
 
 void init(){
     N = 0;

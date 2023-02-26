@@ -23,6 +23,7 @@ byte md5_em[MD5_DIGEST_LENGTH];
 unsigned char* sha1_res = "";
 byte sha1_em[SHA_DIGEST_LENGTH];
 int h2i_called = 0;
+int i2i_called = 0;
 
 void hash_MD5(char* s, byte* empreinte)
 {
@@ -44,6 +45,14 @@ void hash_SHA1_e(char* s)
 {
     byte empreinte[SHA_DIGEST_LENGTH];
     SHA1((unsigned char*)s, strlen(s), empreinte);
+}
+
+void bin_to_char(unsigned char* tmp, byte* em, int length){
+    char* p = tmp;
+    for(int i = 0; i < length ; i++ ){
+        sprintf(p, "%0x", em[i]);
+        p += 2;
+    }
 }
 
 char* i2c_naif(int64_t i, int size) {
@@ -87,6 +96,26 @@ uint64_t h2i(unsigned char* y, int t) {
     return (y_64 + t) % N;
 }
 
+uint64_t* nouvelle_chaine(uint64_t idx1, int largeur){
+    /*Calcul une chaîne de h et d'indices de longueur largeur, renvoie un tableau contenant tous les indices*/
+    uint64_t* res = malloc(largeur * sizeof(uint64_t));
+    largeurChaine = largeur;
+    res[0] = idx1; // le premier indice est l'indice de départ
+
+    for (int i = 1; i < largeur; i++)
+    {
+        res[i] = i2i(res[i-1], i);
+    }
+
+    return res;
+}
+
+// uint64_t randomIndice(){
+//     unsigned long n1 = rand();
+//     unsigned long n2 = rand();
+//     return ( (uint64) n2 )+ ( ( (uint64) n1 ) << 32 );
+// }
+
 uint64_t i2i(uint64_t idx, int t){
     // calcul message clair : indice -> clair (i2c)
     texte_clair_i2i = i2c(idx);
@@ -94,6 +123,7 @@ uint64_t i2i(uint64_t idx, int t){
     // calcul empreinte : clair -> empreinte (hash)
     byte empreinte[MD5_DIGEST_LENGTH];
     hash_MD5(texte_clair_i2i, empreinte);
+    bin_to_char(texte_clair_i2i, empreinte, MD5_DIGEST_LENGTH);
 
     // calcul indice : empreinte -> indice (h2i)
     uint64_t indice = h2i(empreinte, t);
@@ -130,15 +160,6 @@ void test_sha1(char* testString){
     printf("\n");
 }
 
-void bin_to_char(unsigned char* tmp, byte* em, int length){
-    char* p = tmp;
-    for(int i = 0; i < length ; i++ ){
-        sprintf(p, "%0x", em[i]);
-        p += 2;
-    }
-}
-
-
 //function main to create MD5 hash
 int main(int argc, char *argv[]) {
     int opt;
@@ -153,6 +174,7 @@ int main(int argc, char *argv[]) {
         {"sha1", required_argument, 0, 's'},
         {"i2c", required_argument, 0, 'x'},
         {"h2i", no_argument, 0, 'y'},
+        {"i2i", no_argument, 0, 'z'},
         {0, 0, 0, 0}
     };
 
@@ -187,6 +209,9 @@ int main(int argc, char *argv[]) {
             case 'y' :
                 h2i_called = 1;
                 break;
+            case 'z' :
+                i2i_called = 1;
+                break;
 
         } 
     }
@@ -211,5 +236,9 @@ int main(int argc, char *argv[]) {
         hash_MD5(sha1_res, sha1_em);
         bin_to_char(tmp, sha1_em, SHA_DIGEST_LENGTH);
         printf("H2I '%s' --> %ld\n", tmp, h2i(tmp, 1));
+    }
+
+    if(i2i_called && strlen(md5_res) != 0){
+        printf("I2I --> %ld", i2i(i2c_num, 1));
     }
 }
